@@ -6,7 +6,7 @@ import os
 
 try:
     from . import config
-    data_dir = config.get("local_settings", 'data_dir')
+    data_dir = config.get("local_settings", 'data_dir', fallback=".")
 except ImportError:
     data_dir = "."
 
