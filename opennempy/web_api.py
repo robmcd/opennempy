@@ -1,11 +1,15 @@
-from . import config
 import requests
 import simplejson
 import pandas as pd
 import datetime
 import os
 
-data_dir = config.get("local_settings",'data_dir')
+try:
+    from . import config
+    data_dir = config.get("local_settings", 'data_dir')
+except ImportError:
+    data_dir = "."
+
 if not os.path.exists(os.path.join(data_dir,"power")):
 	os.mkdir(os.path.join(data_dir,"power"))
 
