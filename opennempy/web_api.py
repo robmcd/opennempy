@@ -1,3 +1,5 @@
+from urllib.error import HTTPError
+
 import requests
 import simplejson
 import pandas as pd
@@ -69,7 +71,9 @@ def download_week(dt_start, region='sa1'):
 	#downloads a specfic week from a specific region
 	iso_week = dt_to_isocal(dt_start)
 	url = "http://data.opennem.org.au/power/history/5minute/{0}_{1}.json".format(region,iso_week)
+	print(url)
 	r = requests.get(url)
+	r.raise_for_status()
 	return 	merge_series(r)
 	
 def merge_series(r):
@@ -134,7 +138,14 @@ def json_to_pd(data_set):
 	if interval[-1] == "m":
 		interval += "in"
 		
-	index = pd.date_range(start=dt_i, end = dt_f, freq = interval)[1:]
+	index = pd.date_range(start=dt_i, end=dt_f, freq=interval)[1:]
+
+	diff = len(index) - len(series["data"])
+
+	if diff > 0:
+		print("series length {} shorter than index {}".format(len(series["data"]), len(index)))
+		series["data"] += [series["data"][-1]] * diff
+		print("padding out the series data by {} values".format(diff))
 	
 	return pd.DataFrame(index=index, data = series['data'], columns=[name])
 
